@@ -1,0 +1,439 @@
+Running Three Causality Simulations
+============================================================
+Output will be saved to: causality_results_20250520_172506
+Log file: causality_results_20250520_172506/simulation_log.txt
+
+1. Running Simulation 1: Linear Chain (1 → 2 → 3 → 4)
+--------------------------------------------------
+Saved plot to: causality_results_20250520_172506/sim1_timeseries.png
+  Analyzing causality...
+  Analyzing X1 ↔ X2...
+  CCM result columns: ['LibSize', 'X1:X2', 'X2:X1']
+  Sample CCM result:
+     LibSize     X1:X2     X2:X1
+0       50  0.930754  0.958966
+1      100  0.978141  0.983078
+2      150  0.995991  0.998081
+3      200  0.997635  0.999067
+4      250  0.997860  0.999212
+  Assigned columns: X1:X2 → X:Y, X2:X1 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50  0.930754  0.958966
+1      100  0.978141  0.983078
+2      150  0.995991  0.998081
+3      200  0.997635  0.999067
+4      250  0.997860  0.999212
+  Analyzing X1 ↔ X3...
+  CCM result columns: ['LibSize', 'X1:X3', 'X3:X1']
+  Sample CCM result:
+     LibSize     X1:X3     X3:X1
+0       50  0.849435  0.854836
+1      100  0.964432  0.968933
+2      150  0.988228  0.996046
+3      200  0.991775  0.998317
+4      250  0.992307  0.998794
+  Assigned columns: X1:X3 → X:Y, X3:X1 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50  0.849435  0.854836
+1      100  0.964432  0.968933
+2      150  0.988228  0.996046
+3      200  0.991775  0.998317
+4      250  0.992307  0.998794
+  Analyzing X1 ↔ X4...
+  CCM result columns: ['LibSize', 'X1:X4', 'X4:X1']
+  Sample CCM result:
+     LibSize     X1:X4     X4:X1
+0       50  0.883391  0.860224
+1      100  0.963805  0.967039
+2      150  0.983389  0.995385
+3      200  0.986397  0.997180
+4      250  0.987021  0.998028
+  Assigned columns: X1:X4 → X:Y, X4:X1 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50  0.883391  0.860224
+1      100  0.963805  0.967039
+2      150  0.983389  0.995385
+3      200  0.986397  0.997180
+4      250  0.987021  0.998028
+  Analyzing X2 ↔ X3...
+  CCM result columns: ['LibSize', 'X2:X3', 'X3:X2']
+  Sample CCM result:
+     LibSize     X2:X3     X3:X2
+0       50  0.930217  0.954920
+1      100  0.979426  0.982280
+2      150  0.995366  0.998359
+3      200  0.997111  0.999129
+4      250  0.997333  0.999347
+  Assigned columns: X2:X3 → X:Y, X3:X2 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50  0.930217  0.954920
+1      100  0.979426  0.982280
+2      150  0.995366  0.998359
+3      200  0.997111  0.999129
+4      250  0.997333  0.999347
+  Analyzing X2 ↔ X4...
+  CCM result columns: ['LibSize', 'X2:X4', 'X4:X2']
+  Sample CCM result:
+     LibSize     X2:X4     X4:X2
+0       50  0.848466  0.861270
+1      100  0.963785  0.968510
+2      150  0.986684  0.996261
+3      200  0.990546  0.997994
+4      250  0.991042  0.998713
+  Assigned columns: X2:X4 → X:Y, X4:X2 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50  0.848466  0.861270
+1      100  0.963785  0.968510
+2      150  0.986684  0.996261
+3      200  0.990546  0.997994
+4      250  0.991042  0.998713
+  Analyzing X3 ↔ X4...
+  CCM result columns: ['LibSize', 'X3:X4', 'X4:X3']
+  Sample CCM result:
+     LibSize     X3:X4     X4:X3
+0       50  0.924893  0.957037
+1      100  0.978939  0.983974
+2      150  0.995819  0.998475
+3      200  0.997047  0.999080
+4      250  0.997472  0.999330
+  Assigned columns: X3:X4 → X:Y, X4:X3 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50  0.924893  0.957037
+1      100  0.978939  0.983974
+2      150  0.995819  0.998475
+3      200  0.997047  0.999080
+4      250  0.997472  0.999330
+Saved plot to: causality_results_20250520_172506/sim1_causality.png
+Saved convergence plot to: causality_results_20250520_172506/Sim1_convergence_X1_X2.png
+Saved convergence plot to: causality_results_20250520_172506/Sim1_convergence_X1_X3.png
+Saved convergence plot to: causality_results_20250520_172506/Sim1_convergence_X1_X4.png
+Saved convergence plot to: causality_results_20250520_172506/Sim1_convergence_X2_X3.png
+Saved convergence plot to: causality_results_20250520_172506/Sim1_convergence_X2_X4.png
+Saved convergence plot to: causality_results_20250520_172506/Sim1_convergence_X3_X4.png
+
+============================================================
+Summary for Simulation 1
+============================================================
+
+Detected Relationships (ρ > 0.3):
+  X1 → X2: ρ = 0.998
+  X2 → X1: ρ = 0.999
+  X1 → X3: ρ = 0.992
+  X3 → X1: ρ = 0.999
+  X1 → X4: ρ = 0.987
+  X4 → X1: ρ = 0.998
+  X2 → X3: ρ = 0.997
+  X3 → X2: ρ = 0.999
+  X2 → X4: ρ = 0.991
+  X4 → X2: ρ = 0.999
+  X3 → X4: ρ = 0.997
+  X4 → X3: ρ = 0.999
+
+Expected vs Detected:
+  X1 → X2: Expected=Strong, Detected=0.998 ✓ DETECTED
+  X2 → X3: Expected=Strong, Detected=0.997 ✓ DETECTED
+  X3 → X4: Expected=Strong, Detected=0.997 ✓ DETECTED
+
+2. Running Simulation 2: Hub + Outsider (1 → 2 strong, 1 → 3 weak, 4 independent)
+--------------------------------------------------
+Saved plot to: causality_results_20250520_172506/sim2_timeseries.png
+  Analyzing causality...
+  Analyzing X1 ↔ X2...
+  CCM result columns: ['LibSize', 'X1:X2', 'X2:X1']
+  Sample CCM result:
+     LibSize     X1:X2     X2:X1
+0       50  0.930756  0.958977
+1      100  0.978148  0.983098
+2      150  0.995996  0.998105
+3      200  0.997642  0.999092
+4      250  0.997868  0.999243
+  Assigned columns: X1:X2 → X:Y, X2:X1 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50  0.930756  0.958977
+1      100  0.978148  0.983098
+2      150  0.995996  0.998105
+3      200  0.997642  0.999092
+4      250  0.997868  0.999243
+  Analyzing X1 ↔ X3...
+  CCM result columns: ['LibSize', 'X1:X3', 'X3:X1']
+  Sample CCM result:
+     LibSize     X1:X3     X3:X1
+0       50  0.930810  0.958529
+1      100  0.978149  0.982684
+2      150  0.995979  0.997756
+3      200  0.997616  0.998853
+4      250  0.997836  0.998955
+  Assigned columns: X1:X3 → X:Y, X3:X1 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50  0.930810  0.958529
+1      100  0.978149  0.982684
+2      150  0.995979  0.997756
+3      200  0.997616  0.998853
+4      250  0.997836  0.998955
+  Analyzing X1 ↔ X4...
+  CCM result columns: ['LibSize', 'X1:X4', 'X4:X1']
+  Sample CCM result:
+     LibSize     X1:X4     X4:X1
+0       50 -0.030303 -0.032058
+1      100 -0.043146 -0.051541
+2      150 -0.056645 -0.067313
+3      200 -0.064485 -0.077190
+4      250 -0.071941 -0.091430
+  Assigned columns: X1:X4 → X:Y, X4:X1 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50 -0.030303 -0.032058
+1      100 -0.043146 -0.051541
+2      150 -0.056645 -0.067313
+3      200 -0.064485 -0.077190
+4      250 -0.071941 -0.091430
+  Analyzing X2 ↔ X3...
+  CCM result columns: ['LibSize', 'X2:X3', 'X3:X2']
+  Sample CCM result:
+     LibSize     X2:X3     X3:X2
+0       50  0.997712  0.997736
+1      100  0.988911  0.988692
+2      150  0.999655  0.999663
+3      200  0.999748  0.999765
+4      250  0.999798  0.999809
+  Assigned columns: X2:X3 → X:Y, X3:X2 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50  0.997712  0.997736
+1      100  0.988911  0.988692
+2      150  0.999655  0.999663
+3      200  0.999748  0.999765
+4      250  0.999798  0.999809
+  Analyzing X2 ↔ X4...
+  CCM result columns: ['LibSize', 'X2:X4', 'X4:X2']
+  Sample CCM result:
+     LibSize     X2:X4     X4:X2
+0       50 -0.025868 -0.031452
+1      100 -0.033994 -0.051456
+2      150 -0.043150 -0.066688
+3      200 -0.048930 -0.081416
+4      250 -0.050959 -0.097909
+  Assigned columns: X2:X4 → X:Y, X4:X2 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50 -0.025868 -0.031452
+1      100 -0.033994 -0.051456
+2      150 -0.043150 -0.066688
+3      200 -0.048930 -0.081416
+4      250 -0.050959 -0.097909
+  Analyzing X3 ↔ X4...
+  CCM result columns: ['LibSize', 'X3:X4', 'X4:X3']
+  Sample CCM result:
+     LibSize     X3:X4     X4:X3
+0       50 -0.023549 -0.031411
+1      100 -0.029380 -0.051206
+2      150 -0.037455 -0.066444
+3      200 -0.038264 -0.081174
+4      250 -0.042296 -0.097689
+  Assigned columns: X3:X4 → X:Y, X4:X3 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50 -0.023549 -0.031411
+1      100 -0.029380 -0.051206
+2      150 -0.037455 -0.066444
+3      200 -0.038264 -0.081174
+4      250 -0.042296 -0.097689
+Saved plot to: causality_results_20250520_172506/sim2_causality.png
+Saved convergence plot to: causality_results_20250520_172506/Sim2_convergence_X1_X2.png
+Saved convergence plot to: causality_results_20250520_172506/Sim2_convergence_X1_X3.png
+Saved convergence plot to: causality_results_20250520_172506/Sim2_convergence_X1_X4.png
+Saved convergence plot to: causality_results_20250520_172506/Sim2_convergence_X2_X3.png
+Saved convergence plot to: causality_results_20250520_172506/Sim2_convergence_X2_X4.png
+Saved convergence plot to: causality_results_20250520_172506/Sim2_convergence_X3_X4.png
+
+============================================================
+Summary for Simulation 2
+============================================================
+
+Detected Relationships (ρ > 0.3):
+  X1 → X2: ρ = 0.998
+  X2 → X1: ρ = 0.999
+  X1 → X3: ρ = 0.998
+  X3 → X1: ρ = 0.999
+  X2 → X3: ρ = 1.000
+  X3 → X2: ρ = 1.000
+
+Expected vs Detected:
+  X1 → X2: Expected=Strong, Detected=0.998 ✓ DETECTED
+  X1 → X3: Expected=Weak, Detected=0.998 ✓ DETECTED
+
+3. Running Simulation 3: Complex Network (1 → 2 strong, 1 → 3 weak, 4 → 2 weak)
+--------------------------------------------------
+Saved plot to: causality_results_20250520_172506/sim3_timeseries.png
+  Analyzing causality...
+  Analyzing X1 ↔ X2...
+  CCM result columns: ['LibSize', 'X1:X2', 'X2:X1']
+  Sample CCM result:
+     LibSize     X1:X2     X2:X1
+0       50  0.844623  0.881220
+1      100  0.890266  0.911999
+2      150  0.908423  0.933970
+3      200  0.910460  0.938196
+4      250  0.911694  0.941264
+  Assigned columns: X1:X2 → X:Y, X2:X1 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50  0.844623  0.881220
+1      100  0.890266  0.911999
+2      150  0.908423  0.933970
+3      200  0.910460  0.938196
+4      250  0.911694  0.941264
+  Analyzing X1 ↔ X3...
+  CCM result columns: ['LibSize', 'X1:X3', 'X3:X1']
+  Sample CCM result:
+     LibSize     X1:X3     X3:X1
+0       50  0.930808  0.958571
+1      100  0.978084  0.982501
+2      150  0.995971  0.997789
+3      200  0.997613  0.998842
+4      250  0.997836  0.998951
+  Assigned columns: X1:X3 → X:Y, X3:X1 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50  0.930808  0.958571
+1      100  0.978084  0.982501
+2      150  0.995971  0.997789
+3      200  0.997613  0.998842
+4      250  0.997836  0.998951
+  Analyzing X1 ↔ X4...
+  CCM result columns: ['LibSize', 'X1:X4', 'X4:X1']
+  Sample CCM result:
+     LibSize     X1:X4     X4:X1
+0       50 -0.030476 -0.031320
+1      100 -0.043219 -0.049954
+2      150 -0.056650 -0.067223
+3      200 -0.064670 -0.079842
+4      250 -0.072118 -0.090160
+  Assigned columns: X1:X4 → X:Y, X4:X1 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50 -0.030476 -0.031320
+1      100 -0.043219 -0.049954
+2      150 -0.056650 -0.067223
+3      200 -0.064670 -0.079842
+4      250 -0.072118 -0.090160
+  Analyzing X2 ↔ X3...
+  CCM result columns: ['LibSize', 'X2:X3', 'X3:X2']
+  Sample CCM result:
+     LibSize     X2:X3     X3:X2
+0       50  0.940842  0.912624
+1      100  0.932166  0.901500
+2      150  0.945279  0.911694
+3      200  0.945585  0.912037
+4      250  0.946480  0.912937
+  Assigned columns: X2:X3 → X:Y, X3:X2 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50  0.940842  0.912624
+1      100  0.932166  0.901500
+2      150  0.945279  0.911694
+3      200  0.945585  0.912037
+4      250  0.946480  0.912937
+  Analyzing X2 ↔ X4...
+  CCM result columns: ['LibSize', 'X2:X4', 'X4:X2']
+  Sample CCM result:
+     LibSize     X2:X4     X4:X2
+0       50  0.326164  0.078117
+1      100  0.379432  0.067998
+2      150  0.427115  0.056209
+3      200  0.456716  0.048064
+4      250  0.480040  0.042287
+  Assigned columns: X2:X4 → X:Y, X4:X2 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50  0.326164  0.078117
+1      100  0.379432  0.067998
+2      150  0.427115  0.056209
+3      200  0.456716  0.048064
+4      250  0.480040  0.042287
+  Analyzing X3 ↔ X4...
+  CCM result columns: ['LibSize', 'X3:X4', 'X4:X3']
+  Sample CCM result:
+     LibSize     X3:X4     X4:X3
+0       50 -0.026106 -0.032826
+1      100 -0.034176 -0.051084
+2      150 -0.041277 -0.069824
+3      200 -0.042794 -0.081479
+4      250 -0.043472 -0.094454
+  Assigned columns: X3:X4 → X:Y, X4:X3 → Y:X
+  CCM result columns: ['LibSize', 'X:Y', 'Y:X']
+  Sample CCM result:
+     LibSize       X:Y       Y:X
+0       50 -0.026106 -0.032826
+1      100 -0.034176 -0.051084
+2      150 -0.041277 -0.069824
+3      200 -0.042794 -0.081479
+4      250 -0.043472 -0.094454
+Saved plot to: causality_results_20250520_172506/sim3_causality.png
+Saved convergence plot to: causality_results_20250520_172506/Sim3_convergence_X1_X2.png
+Saved convergence plot to: causality_results_20250520_172506/Sim3_convergence_X1_X3.png
+Saved convergence plot to: causality_results_20250520_172506/Sim3_convergence_X1_X4.png
+Saved convergence plot to: causality_results_20250520_172506/Sim3_convergence_X2_X3.png
+Saved convergence plot to: causality_results_20250520_172506/Sim3_convergence_X2_X4.png
+Saved convergence plot to: causality_results_20250520_172506/Sim3_convergence_X3_X4.png
+
+============================================================
+Summary for Simulation 3
+============================================================
+
+Detected Relationships (ρ > 0.3):
+  X1 → X2: ρ = 0.912
+  X2 → X1: ρ = 0.941
+  X1 → X3: ρ = 0.998
+  X3 → X1: ρ = 0.999
+  X2 → X3: ρ = 0.946
+  X3 → X2: ρ = 0.913
+  X2 → X4: ρ = 0.480
+
+Expected vs Detected:
+  X1 → X2: Expected=Strong, Detected=0.912 ✓ DETECTED
+  X1 → X3: Expected=Weak, Detected=0.998 ✓ DETECTED
+  X4 → X2: Expected=Weak, Detected=< 0.3 ✗ NOT DETECTED
+Saved results to: causality_results_20250520_172506/sim1_results.csv
+Saved results to: causality_results_20250520_172506/sim2_results.csv
+Saved results to: causality_results_20250520_172506/sim3_results.csv
+
+============================================================
+FINAL COMPARISON
+============================================================
+Simulation 1 (Chain): Sequential causality with equal strength
+Simulation 2 (Hub): One node influences multiple others with different strengths
+Simulation 3 (Network): Multiple nodes contributing to same targets
+
+Key insights:
+- CCM should detect strongest direct relationships most clearly
+- Indirect relationships (X1→X3 in Simulation 1) should be weaker
+- Multiple influences on same target should be detectable but weaker individually
+
+All outputs saved to: causality_results_20250520_172506
+Log file: causality_results_20250520_172506/simulation_log.txt

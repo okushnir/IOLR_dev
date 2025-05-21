@@ -2,13 +2,33 @@ import numpy as np
 import pandas as pd
 import os
 import warnings
+import logging
 from concurrent.futures import ProcessPoolExecutor
 import multiprocessing as mp
 
-# Suppress Intel MKL warnings
+# Comprehensive warning suppression for Intel MKL
 os.environ['MKL_THREADING_LAYER'] = 'INTEL'
 os.environ['MKL_NUM_THREADS'] = '1'
+os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
+os.environ['VECLIB_MAXIMUM_THREADS'] = '1'
+os.environ['MKL_DYNAMIC'] = 'FALSE'
+os.environ['MKL_VERBOSE'] = '0'
+os.environ['BLIS_NUM_THREADS'] = '1'
+
+# Suppress all warnings
 warnings.filterwarnings('ignore')
+warnings.filterwarnings('ignore', category=UserWarning)
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+
+# Suppress logging warnings
+logging.getLogger().setLevel(logging.ERROR)
+
+# Import pyEDM after setting environment variables
+import sys
+
+sys.tracebacklimit = 0  # Reduce traceback verbosity
 
 try:
     from pyEDM import CCM
