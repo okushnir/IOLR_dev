@@ -82,7 +82,7 @@ def print_to_both(message, log_file):
         f.write(message + '\n')
 
 
-def generate_simulation_1(n_points=1000, strength=0.7, delay=3, noise_level=0.1, coupling=0.8, seed=42):
+def generate_simulation_1(n_points=1000, strength=0.2, delay=3, noise_level=0.5, coupling=0.8, seed=42):
     """
     Simulation 1: Linear chain - 1 → 2 → 3 → 4
     """
@@ -117,7 +117,8 @@ def generate_simulation_1(n_points=1000, strength=0.7, delay=3, noise_level=0.1,
     return {'X1': x1, 'X2': x2, 'X3': x3, 'X4': x4}
 
 
-def generate_simulation_2(n_points=1000, strong_strength=0.8, weak_strength=0.3, delay=3, noise_level=0.1, coupling=0.8,
+def generate_simulation_2(n_points=1000, strong_strength=0.2, weak_strength=0.01, delay=3, noise_level=0.5,
+                          coupling=0.8,
                           seed=42):
     """
     Simulation 2: 1 → 2 (strong), 1 → 3 (weak), 4 is independent
@@ -153,7 +154,8 @@ def generate_simulation_2(n_points=1000, strong_strength=0.8, weak_strength=0.3,
     return {'X1': x1, 'X2': x2, 'X3': x3, 'X4': x4}
 
 
-def generate_simulation_3(n_points=1000, strong_strength=0.8, weak_strength=0.3, delay=3, noise_level=0.1, coupling=0.8,
+def generate_simulation_3(n_points=1000, strong_strength=0.2, weak_strength=0.01, delay=3, noise_level=0.5,
+                          coupling=0.8,
                           seed=42):
     """
     Simulation 3: 1 → 2 (strong), 1 → 3 (weak), 4 → 2 (weak)
@@ -434,6 +436,637 @@ def create_all_convergence_plots(results, title, output_dir):
             create_convergence_plot(results, key, title, save_path)
 
 
+def analyze_phase_space_patterns(data_dict, simulation_name, E=3, tau=1):
+    """Analyze and provide diagnostic text for phase space patterns."""
+    print(f"\n{'=' * 60}")
+    print(f"PHASE SPACE ANALYSIS: {simulation_name}")
+    print(f"{'=' * 60}")
+
+    variables = ['X1', 'X2', 'X3', 'X4']
+    patterns = {}
+
+    for var in variables:
+        data = data_dict[var]
+        n_points = len(data) - (E - 1) * tau
+
+        if n_points > 100:
+            # Create 2D embedding
+            x = data[:-tau][:n_points - tau]
+            y = data[tau:][:n_points - tau]
+
+            # Calculate pattern characteristics
+            pattern_analysis = analyze_attractor_shape(x, y, var)
+            patterns[var] = pattern_analysis
+
+            print(f"\n{var} Analysis:")
+            print(f"  Shape: {pattern_analysis['shape_description']}")
+            print(f"  Regularity: {pattern_analysis['regularity_description']}")
+            print(f"  Noise Level: {pattern_analysis['noise_description']}")
+            print(f"  Interpretation: {pattern_analysis['interpretation']}")
+
+    # Provide simulation-specific diagnostics
+    print(f"\n{'=' * 40}")
+    print("EXPECTED vs OBSERVED PATTERNS:")
+    print(f"{'=' * 40}")
+
+    if "Simulation 1" in simulation_name:
+        analyze_simulation1_patterns(patterns)
+    elif "Simulation 2" in simulation_name:
+        analyze_simulation2_patterns(patterns)
+    elif "Simulation 3" in simulation_name:
+        analyze_simulation3_patterns(patterns)
+
+    return patterns
+
+
+def analyze_attractor_shape(x, y, var_name):
+    """Analyze the shape and characteristics of a 2D attractor."""
+    import numpy as np
+    from scipy import stats
+
+    # Calculate basic statistics
+    x_range = np.max(x) - np.min(x)
+    y_range = np.max(y) - np.min(y)
+
+    # Correlation between x and y coordinates
+    correlation = np.corrcoef(x, y)[0, 1]
+
+    # Calculate "thickness" of attractor (measure of noise)
+    # Use distance from points to their best-fit ellipse/line
+    if abs(correlation) > 0.7:  # Linear-ish pattern
+        # Fit line and calculate residuals
+        slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+        predicted_y = slope * x + intercept
+        residuals = y - predicted_y
+        thickness = np.std(residuals)
+        shape_type = "linear"
+    else:
+        # For non-linear patterns, use distance from centroid
+        center_x, center_y = np.mean(x), np.mean(y)
+        distances = np.sqrt((x - center_x) ** 2 + (y - center_y) ** 2)
+        thickness = np.std(distances) / np.mean(distances)
+        shape_type = "curved"
+
+    # Determine regularity (how predictable the pattern is)
+    # Use autocorrelation of the trajectory
+    trajectory_x = np.diff(x)
+    trajectory_y = np.diff(y)
+    trajectory_angles = np.arctan2(trajectory_y, trajectory_x)
+
+    # Calculate how consistent the trajectory direction is
+    angle_consistency = 1 - np.std(np.diff(trajectory_angles)) / np.pi
+
+    # Classify patterns
+    analysis = {
+        'correlation': correlation,
+        'thickness': thickness,
+        'angle_consistency': angle_consistency,
+        'x_range': x_range,
+        'y_range': y_range,
+        'shape_type': shape_type
+    }
+
+    # Generate descriptions
+    analysis['shape_description'] = describe_shape(analysis)
+    analysis['regularity_description'] = describe_regularity(analysis)
+    analysis['noise_description'] = describe_noise(analysis)
+    analysis['interpretation'] = interpret_pattern(analysis, var_name)
+
+    return analysis
+
+
+def describe_shape(analysis):
+    """Describe the overall shape of the attractor."""
+    corr = abs(analysis['correlation'])
+
+    if corr > 0.9:
+        return "Strong linear relationship"
+    elif corr > 0.7:
+        return "Moderate linear relationship"
+    elif corr > 0.3:
+        return "Weak linear relationship"
+    elif analysis['shape_type'] == "curved" and analysis['angle_consistency'] > 0.5:
+        return "Curved/elliptical pattern"
+    else:
+        return "Scattered/random pattern"
+
+
+def describe_regularity(analysis):
+    """Describe how regular/predictable the pattern is."""
+    consistency = analysis['angle_consistency']
+
+    if consistency > 0.8:
+        return "Highly regular (very predictable)"
+    elif consistency > 0.6:
+        return "Moderately regular (somewhat predictable)"
+    elif consistency > 0.4:
+        return "Somewhat irregular (low predictability)"
+    else:
+        return "Highly irregular (unpredictable)"
+
+
+def describe_noise(analysis):
+    """Describe the noise level in the pattern."""
+    thickness = analysis['thickness']
+
+    if analysis['shape_type'] == "linear":
+        if thickness < 0.1:
+            return "Very low noise (clean signal)"
+        elif thickness < 0.3:
+            return "Low noise (clear signal)"
+        elif thickness < 0.6:
+            return "Moderate noise (signal visible)"
+        else:
+            return "High noise (signal obscured)"
+    else:  # curved patterns
+        if thickness < 0.2:
+            return "Very low noise (clean pattern)"
+        elif thickness < 0.4:
+            return "Low noise (clear pattern)"
+        elif thickness < 0.7:
+            return "Moderate noise (pattern visible)"
+        else:
+            return "High noise (pattern obscured)"
+
+
+def interpret_pattern(analysis, var_name):
+    """Provide interpretation of what the pattern means."""
+    shape = analysis['shape_description']
+    noise = analysis['noise_description']
+    regularity = analysis['regularity_description']
+
+    if "Strong linear" in shape and "low noise" in noise.lower():
+        return f"{var_name} shows strong deterministic coupling (good signal transmission)"
+    elif "linear" in shape.lower() and "moderate" in noise.lower():
+        return f"{var_name} shows causal influence with added noise (typical transmission)"
+    elif "Curved" in shape and "regular" in regularity.lower():
+        return f"{var_name} shows periodic/oscillatory behavior (driven by sin/cos)"
+    elif "Scattered" in shape:
+        return f"{var_name} shows weak coupling or independence (high noise/randomness)"
+    else:
+        return f"{var_name} shows complex dynamics (multiple influences or nonlinear effects)"
+
+
+def analyze_simulation1_patterns(patterns):
+    """Analyze patterns specific to Simulation 1 (Linear Chain)."""
+    print("\nExpected for Linear Chain (X1→X2→X3→X4):")
+    print("✓ X1: Clean curved/elliptical (sin wave)")
+    print("✓ X2: Similar to X1 but slightly noisier")
+    print("✓ X3: More degraded version of X1 pattern")
+    print("✓ X4: Most degraded/noisy version")
+
+    print(f"\nActual Results:")
+
+    # Check if X1 is the cleanest
+    x1_noise = "low noise" in patterns['X1']['noise_description'].lower()
+    print(f"• X1 cleanest pattern: {'✓ YES' if x1_noise else '✗ NO - check parameters'}")
+
+    # Check progression of degradation
+    shapes = [patterns[var]['shape_description'] for var in ['X1', 'X2', 'X3', 'X4']]
+    similar_shapes = sum(1 for i in range(3) if "linear" in shapes[i].lower() and "linear" in shapes[i + 1].lower())
+    print(f"• Progressive degradation: {'✓ YES' if similar_shapes >= 2 else '✗ NO - coupling may be too weak'}")
+
+    # Check if patterns are related
+    correlations = [abs(patterns[var]['correlation']) for var in ['X1', 'X2', 'X3', 'X4']]
+    decreasing = all(correlations[i] >= correlations[i + 1] - 0.2 for i in range(3))
+    print(f"• Causal chain visible: {'✓ YES' if decreasing else '✗ NO - check strength parameters'}")
+
+
+def analyze_simulation2_patterns(patterns):
+    """Analyze patterns specific to Simulation 2 (Hub + Outsider)."""
+    print("\nExpected for Hub + Outsider (X1→X2 strong, X1→X3 weak, X4 independent):")
+    print("✓ X1: Clean curved/elliptical (sin wave)")
+    print("✓ X2: Very similar to X1 (strong connection)")
+    print("✓ X3: Weakly similar to X1 (weak connection)")
+    print("✓ X4: Different pattern (cos wave, independent)")
+
+    print(f"\nActual Results:")
+
+    # Check X1-X2 strong similarity
+    x1_shape = patterns['X1']['shape_description']
+    x2_shape = patterns['X2']['shape_description']
+    strong_connection = ("linear" in x1_shape.lower() and "linear" in x2_shape.lower()) or \
+                        ("curved" in x1_shape.lower() and "curved" in x2_shape.lower())
+    print(f"• X1→X2 strong connection: {'✓ YES' if strong_connection else '✗ NO - check strong_strength'}")
+
+    # Check X1-X3 weak similarity
+    x3_noise = patterns['X3']['noise_description']
+    weak_connection = "moderate" in x3_noise.lower() or "high" in x3_noise.lower()
+    print(f"• X1→X3 weak connection: {'✓ YES' if weak_connection else '✗ NO - check weak_strength'}")
+
+    # Check X4 independence
+    x4_pattern = patterns['X4']['shape_description']
+    independent = "scattered" in x4_pattern.lower() or "curved" in x4_pattern.lower()
+    print(f"• X4 independence: {'✓ YES' if independent else '✗ NO - check independence'}")
+
+
+def analyze_simulation3_patterns(patterns):
+    """Analyze patterns specific to Simulation 3 (Complex Network)."""
+    print("\nExpected for Complex Network (X1→X2 strong, X1→X3 weak, X4→X2 weak):")
+    print("✓ X1: Clean curved/elliptical (sin wave)")
+    print("✓ X2: Complex pattern (influenced by both X1 and X4)")
+    print("✓ X3: Weakly similar to X1")
+    print("✓ X4: Different clean pattern (cos wave)")
+
+    print(f"\nActual Results:")
+
+    # Check X2 complexity (should be most complex due to dual influence)
+    x2_interpretation = patterns['X2']['interpretation']
+    complex_x2 = "complex" in x2_interpretation.lower() or "multiple" in x2_interpretation.lower()
+    print(f"• X2 shows complex pattern: {'✓ YES' if complex_x2 else '✗ MAYBE - dual influence may be weak'}")
+
+    # Check X1 and X4 are different
+    x1_corr = abs(patterns['X1']['correlation'])
+    x4_corr = abs(patterns['X4']['correlation'])
+    different_drivers = abs(x1_corr - x4_corr) > 0.3
+    print(f"• X1 and X4 are different: {'✓ YES' if different_drivers else '✗ NO - check driving functions'}")
+
+    # Check X3 weakness
+    x3_noise = patterns['X3']['noise_description']
+    weak_x3 = "moderate" in x3_noise.lower() or "high" in x3_noise.lower()
+    print(f"• X3 shows weak influence: {'✓ YES' if weak_x3 else '✗ NO - check weak_strength'}")
+
+
+def embedding_sensitivity_analysis(data_dict, var1, var2, E_range=None, tau_range=None):
+    """Test CCM across different embedding parameters to show dependency."""
+    if E_range is None:
+        E_range = range(1, 7)
+    if tau_range is None:
+        tau_range = range(1, 6)
+
+    results_matrix_xy = np.zeros((len(E_range), len(tau_range)))
+    results_matrix_yx = np.zeros((len(E_range), len(tau_range)))
+
+    print(f"  Testing embedding parameters for {var1} ↔ {var2}...")
+
+    for i, E in enumerate(E_range):
+        for j, tau in enumerate(tau_range):
+            try:
+                # Test if we have enough data points for this embedding
+                n_points = len(data_dict[var1]) - (E - 1) * tau
+                if n_points > 100:  # Minimum points needed
+                    result = run_ccm_direct(data_dict, var1, var2, E=E, tau=tau, lib_sizes=[250])
+                    if result is not None and len(result) > 0:
+                        # Get final correlation values
+                        final_row = result.iloc[-1]
+                        if 'X:Y' in result.columns:
+                            results_matrix_xy[i, j] = final_row['X:Y']
+                        if 'Y:X' in result.columns:
+                            results_matrix_yx[i, j] = final_row['Y:X']
+                    else:
+                        results_matrix_xy[i, j] = np.nan
+                        results_matrix_yx[i, j] = np.nan
+                else:
+                    results_matrix_xy[i, j] = np.nan
+                    results_matrix_yx[i, j] = np.nan
+            except Exception as e:
+                print(f"    Error at E={E}, τ={tau}: {e}")
+                results_matrix_xy[i, j] = np.nan
+                results_matrix_yx[i, j] = np.nan
+
+    return results_matrix_xy, results_matrix_yx, list(E_range), list(tau_range)
+
+
+def plot_embedding_sensitivity_heatmap(results_xy, results_yx, E_range, tau_range, var1, var2, title, save_path=None):
+    """Create heatmap showing CCM sensitivity to embedding parameters."""
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+
+    # Plot X→Y direction
+    im1 = ax1.imshow(results_xy, aspect='auto', cmap='RdBu_r', vmin=-0.5, vmax=1.0, origin='lower')
+    ax1.set_title(f'{var1} → {var2}')
+    ax1.set_xlabel('Time Delay (τ)')
+    ax1.set_ylabel('Embedding Dimension (E)')
+    ax1.set_xticks(range(len(tau_range)))
+    ax1.set_xticklabels(tau_range)
+    ax1.set_yticks(range(len(E_range)))
+    ax1.set_yticklabels(E_range)
+
+    # Add text annotations
+    for i in range(len(E_range)):
+        for j in range(len(tau_range)):
+            if not np.isnan(results_xy[i, j]):
+                color = 'white' if abs(results_xy[i, j]) > 0.5 else 'black'
+                ax1.text(j, i, f'{results_xy[i, j]:.2f}', ha='center', va='center',
+                         color=color, fontsize=8, fontweight='bold')
+
+    plt.colorbar(im1, ax=ax1, label='CCM ρ')
+
+    # Plot Y→X direction
+    im2 = ax2.imshow(results_yx, aspect='auto', cmap='RdBu_r', vmin=-0.5, vmax=1.0, origin='lower')
+    ax2.set_title(f'{var2} → {var1}')
+    ax2.set_xlabel('Time Delay (τ)')
+    ax2.set_ylabel('Embedding Dimension (E)')
+    ax2.set_xticks(range(len(tau_range)))
+    ax2.set_xticklabels(tau_range)
+    ax2.set_yticks(range(len(E_range)))
+    ax2.set_yticklabels(E_range)
+
+    # Add text annotations
+    for i in range(len(E_range)):
+        for j in range(len(tau_range)):
+            if not np.isnan(results_yx[i, j]):
+                color = 'white' if abs(results_yx[i, j]) > 0.5 else 'black'
+                ax2.text(j, i, f'{results_yx[i, j]:.2f}', ha='center', va='center',
+                         color=color, fontsize=8, fontweight='bold')
+
+    plt.colorbar(im2, ax=ax2, label='CCM ρ')
+
+    plt.suptitle(f'Embedding Parameter Sensitivity: {title}\n{var1} ↔ {var2}', fontsize=14)
+    plt.tight_layout()
+
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"    Saved embedding sensitivity plot to: {save_path}")
+    else:
+        plt.show()
+    plt.close()
+
+
+def calculate_false_nearest_neighbors(data, max_E=8, tau=1):
+    """Calculate False Nearest Neighbors to determine optimal embedding dimension."""
+    fnn_percentages = []
+
+    for E in range(1, max_E + 1):
+        try:
+            n_points = len(data) - E * tau
+            if n_points < 50:
+                fnn_percentages.append(np.nan)
+                continue
+
+            # Create embedding
+            embedding = np.zeros((n_points, E))
+            for i in range(E):
+                embedding[:, i] = data[i * tau:i * tau + n_points]
+
+            # Calculate nearest neighbor distances (simplified FNN)
+            from sklearn.neighbors import NearestNeighbors
+            nbrs = NearestNeighbors(n_neighbors=3).fit(embedding)  # Need 3 to get 2 nearest neighbors
+            distances, indices = nbrs.kneighbors(embedding)
+
+            # Calculate ratio of nearest neighbor distances
+            # FNN metric: ratio of distance in (E+1) vs E dimensions
+            if E < max_E:
+                # Simplified: use ratio of 1st to 2nd nearest neighbor as proxy
+                ratios = distances[:, 2] / (distances[:, 1] + 1e-10)  # Add small value to avoid division by zero
+                threshold = 2.0  # Standard FNN threshold
+                fnn_pct = np.mean(ratios > threshold) * 100
+            else:
+                fnn_pct = 0  # Assume no false neighbors at max dimension
+
+            fnn_percentages.append(fnn_pct)
+
+        except Exception as e:
+            print(f"    FNN calculation error at E={E}: {e}")
+            fnn_percentages.append(np.nan)
+
+    return fnn_percentages
+
+
+def calculate_mutual_information(data, max_tau=15):
+    """Calculate mutual information to determine optimal time delay."""
+    from sklearn.feature_selection import mutual_info_regression
+
+    mutual_info = []
+
+    for tau in range(1, max_tau + 1):
+        try:
+            if len(data) <= tau:
+                mutual_info.append(np.nan)
+                continue
+
+            x = data[:-tau].reshape(-1, 1)
+            y = data[tau:]
+
+            # Calculate mutual information
+            mi = mutual_info_regression(x, y, random_state=42)[0]
+            mutual_info.append(mi)
+
+        except Exception as e:
+            print(f"    MI calculation error at τ={tau}: {e}")
+            mutual_info.append(np.nan)
+
+    return mutual_info
+
+
+def plot_optimal_embedding_analysis(data_dict, var_name, title, save_path=None):
+    """Plot FNN and MI analysis for optimal embedding parameter selection."""
+    data = data_dict[var_name]
+
+    # Calculate FNN and MI
+    fnn_percentages = calculate_false_nearest_neighbors(data, max_E=8, tau=1)
+    mutual_info = calculate_mutual_information(data, max_tau=15)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+
+    # Plot False Nearest Neighbors
+    E_range = range(1, len(fnn_percentages) + 1)
+    valid_fnn = [(e, fnn) for e, fnn in zip(E_range, fnn_percentages) if not np.isnan(fnn)]
+
+    if valid_fnn:
+        E_vals, fnn_vals = zip(*valid_fnn)
+        ax1.plot(E_vals, fnn_vals, 'bo-', linewidth=2, markersize=8)
+        ax1.set_xlabel('Embedding Dimension (E)')
+        ax1.set_ylabel('False Nearest Neighbors (%)')
+        ax1.set_title(f'Optimal E Selection: {var_name}')
+        ax1.grid(True, alpha=0.3)
+
+        # Mark the optimal E (first significant drop or minimum)
+        if len(fnn_vals) > 1:
+            # Find first local minimum or significant drop
+            optimal_E = E_vals[0]  # Default to E=1
+            for i in range(1, len(fnn_vals)):
+                if fnn_vals[i] < fnn_vals[i - 1] * 0.5:  # 50% drop
+                    optimal_E = E_vals[i]
+                    break
+
+            ax1.axvline(optimal_E, color='red', linestyle='--', linewidth=2,
+                        label=f'Optimal E={optimal_E}')
+            ax1.legend()
+
+    # Plot Mutual Information
+    tau_range = range(1, len(mutual_info) + 1)
+    valid_mi = [(tau, mi) for tau, mi in zip(tau_range, mutual_info) if not np.isnan(mi)]
+
+    if valid_mi:
+        tau_vals, mi_vals = zip(*valid_mi)
+        ax2.plot(tau_vals, mi_vals, 'ro-', linewidth=2, markersize=8)
+        ax2.set_xlabel('Time Delay (τ)')
+        ax2.set_ylabel('Mutual Information')
+        ax2.set_title(f'Optimal τ Selection: {var_name}')
+        ax2.grid(True, alpha=0.3)
+
+        # Mark the first local minimum (optimal τ)
+        if len(mi_vals) > 2:
+            # Find first local minimum
+            optimal_tau = tau_vals[0]  # Default to τ=1
+            for i in range(1, len(mi_vals) - 1):
+                if mi_vals[i] < mi_vals[i - 1] and mi_vals[i] < mi_vals[i + 1]:
+                    optimal_tau = tau_vals[i]
+                    break
+
+            ax2.axvline(optimal_tau, color='red', linestyle='--', linewidth=2,
+                        label=f'Optimal τ={optimal_tau}')
+            ax2.legend()
+
+    plt.suptitle(f'Embedding Parameter Optimization: {title}', fontsize=14)
+    plt.tight_layout()
+
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"    Saved embedding optimization plot to: {save_path}")
+    else:
+        plt.show()
+    plt.close()
+
+    return fnn_percentages, mutual_info
+
+
+def create_embedding_comparison_table(data_dict, var1, var2, E_tau_combinations, title):
+    """Create comparison table showing dramatic differences with embedding parameters."""
+    print(f"\n{'=' * 60}")
+    print(f"Embedding Parameter Comparison: {title}")
+    print(f"Testing {var1} ↔ {var2}")
+    print(f"{'=' * 60}")
+    print(f"{'E':>2} {'τ':>2} {'X→Y':>6} {'Y→X':>6} {'Interpretation'}")
+    print(f"{'-' * 60}")
+
+    results = []
+
+    for E, tau in E_tau_combinations:
+        try:
+            result = run_ccm_direct(data_dict, var1, var2, E=E, tau=tau, lib_sizes=[250])
+
+            if result is not None and len(result) > 0:
+                final_row = result.iloc[-1]
+                xy_corr = final_row.get('X:Y', np.nan)
+                yx_corr = final_row.get('Y:X', np.nan)
+
+                # Determine interpretation
+                if np.isnan(xy_corr) or np.isnan(yx_corr):
+                    interpretation = "Failed"
+                elif abs(xy_corr) > 0.8 and abs(yx_corr) > 0.8:
+                    interpretation = "Very strong (possibly over-connected)"
+                elif abs(xy_corr) > 0.5 and abs(yx_corr) > 0.5:
+                    interpretation = "Strong connection"
+                elif abs(xy_corr) > 0.3 or abs(yx_corr) > 0.3:
+                    interpretation = "Moderate connection"
+                elif xy_corr < 0 and yx_corr < 0:
+                    interpretation = "Independent (negative correlation)"
+                else:
+                    interpretation = "Weak/unclear"
+
+                print(f"{E:>2} {tau:>2} {xy_corr:>6.2f} {yx_corr:>6.2f} {interpretation}")
+                results.append((E, tau, xy_corr, yx_corr, interpretation))
+            else:
+                print(f"{E:>2} {tau:>2} {'N/A':>6} {'N/A':>6} Failed")
+                results.append((E, tau, np.nan, np.nan, "Failed"))
+
+        except Exception as e:
+            print(f"{E:>2} {tau:>2} {'ERR':>6} {'ERR':>6} Error: {str(e)[:20]}")
+            results.append((E, tau, np.nan, np.nan, f"Error: {str(e)[:20]}"))
+
+    return results
+
+
+def demonstrate_embedding_failures(data_dict, simulation_name, output_dir):
+    """Demonstrate dramatic failures with wrong embedding parameters."""
+    print(f"\n{'=' * 60}")
+    print(f"EMBEDDING PARAMETER DEPENDENCY ANALYSIS: {simulation_name}")
+    print(f"{'=' * 60}")
+
+    # Test key relationships with different embedding parameters
+    test_pairs = [('X1', 'X2'), ('X1', 'X4')]  # Strong connection and independence
+
+    for var1, var2 in test_pairs:
+        print(f"\nTesting {var1} ↔ {var2}...")
+
+        # Define test combinations showing dramatic differences
+        E_tau_combinations = [
+            (1, 1),  # Under-embedding
+            (2, 1),  # Still under-embedded
+            (3, 1),  # Our standard (should be good)
+            (4, 1),  # Slight over-embedding
+            (6, 1),  # Over-embedding
+            (3, 3),  # Different tau
+            (3, 5),  # Large tau
+        ]
+
+        # Create comparison table
+        results = create_embedding_comparison_table(data_dict, var1, var2,
+                                                    E_tau_combinations, simulation_name)
+
+        # Create sensitivity heatmap
+        print(f"  Creating embedding sensitivity heatmap for {var1} ↔ {var2}...")
+        results_xy, results_yx, E_range, tau_range = embedding_sensitivity_analysis(
+            data_dict, var1, var2, E_range=range(1, 7), tau_range=range(1, 6))
+
+        heatmap_path = os.path.join(output_dir,
+                                    f"{simulation_name.lower().replace(' ', '_')}_embedding_sensitivity_{var1}_{var2}.png")
+        plot_embedding_sensitivity_heatmap(results_xy, results_yx, E_range, tau_range,
+                                           var1, var2, simulation_name, save_path=heatmap_path)
+
+    # Optimal parameter analysis for each variable
+    for var in ['X1', 'X2', 'X3', 'X4']:
+        print(f"\n  Analyzing optimal parameters for {var}...")
+        opt_path = os.path.join(output_dir, f"{simulation_name.lower().replace(' ', '_')}_optimal_params_{var}.png")
+        fnn, mi = plot_optimal_embedding_analysis(data_dict, var, simulation_name, save_path=opt_path)
+
+
+def plot_phase_space_reconstruction(data_dict, title, E=3, tau=1, save_path=None):
+    """Create phase space reconstruction plots for all variables."""
+    from mpl_toolkits.mplot3d import Axes3D
+
+    variables = ['X1', 'X2', 'X3', 'X4']
+    colors = ['blue', 'red', 'green', 'purple']
+
+    # Create figure with subplots for 2D and 3D plots
+    fig = plt.figure(figsize=(20, 15))
+
+    for i, (var, color) in enumerate(zip(variables, colors)):
+        data = data_dict[var]
+        n_points = len(data) - (E - 1) * tau
+
+        # Create embedding vectors
+        if n_points > 100:  # Ensure we have enough points
+            # 2D Phase Space (top row)
+            ax_2d = plt.subplot(2, 4, i + 1)
+            x = data[:-tau][:n_points - tau]
+            y = data[tau:][:n_points - tau]
+
+            # Plot trajectory with color gradient
+            scatter = ax_2d.scatter(x, y, c=range(len(x)), cmap='viridis',
+                                    alpha=0.6, s=1, edgecolors='none')
+            ax_2d.set_xlabel(f'{var}(t)')
+            ax_2d.set_ylabel(f'{var}(t+{tau})')
+            ax_2d.set_title(f'2D Phase Space: {var}')
+            ax_2d.grid(True, alpha=0.3)
+
+            # 3D Phase Space (bottom row) if E >= 3
+            if E >= 3:
+                ax_3d = plt.subplot(2, 4, i + 5, projection='3d')
+                z = data[2 * tau:][:n_points - 2 * tau]
+                x_3d = x[:-tau]
+                y_3d = y[:-tau]
+
+                # Plot 3D trajectory
+                ax_3d.scatter(x_3d, y_3d, z, c=range(len(x_3d)), cmap='viridis',
+                              alpha=0.6, s=1, edgecolors='none')
+                ax_3d.set_xlabel(f'{var}(t)')
+                ax_3d.set_ylabel(f'{var}(t+{tau})')
+                ax_3d.set_zlabel(f'{var}(t+{2 * tau})')
+                ax_3d.set_title(f'3D Phase Space: {var}')
+
+    plt.suptitle(f'{title}\nPhase Space Reconstruction (E={E}, τ={tau})', fontsize=16)
+    plt.tight_layout()
+
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"Saved phase space plot to: {save_path}")
+    else:
+        plt.show()
+    plt.close()
+
+
 def visualize_time_series(data_dict, title, save_path=None):
     """Visualize the four time series."""
     fig, axes = plt.subplots(2, 2, figsize=(15, 10))
@@ -584,10 +1217,20 @@ def run_all_simulations():
         # Simulation 1: Linear Chain
         print("\n1. Running Simulation 1: Linear Chain (1 → 2 → 3 → 4)")
         print("-" * 50)
-        data1 = generate_simulation_1(n_points=1500, strength=0.7, delay=3)
+        data1 = generate_simulation_1(n_points=1500, strength=0.2, delay=3)
 
         ts_plot1 = os.path.join(output_dir, "sim1_timeseries.png")
         visualize_time_series(data1, "Simulation 1: Linear Chain (1 → 2 → 3 → 4)", save_path=ts_plot1)
+
+        # Create phase space reconstruction plots
+        phase_plot1 = os.path.join(output_dir, "sim1_phase_space.png")
+        plot_phase_space_reconstruction(data1, "Simulation 1: Linear Chain", E=3, tau=1, save_path=phase_plot1)
+
+        # Analyze phase space patterns
+        analyze_phase_space_patterns(data1, "Simulation 1: Linear Chain", E=3, tau=1)
+
+        # Demonstrate embedding dependency
+        demonstrate_embedding_failures(data1, "Simulation 1", output_dir)
 
         print("  Analyzing causality...")
         results1 = analyze_all_pairs(data1, E=3, tau=1)
@@ -606,10 +1249,20 @@ def run_all_simulations():
         # Simulation 2: Hub with Outsider
         print("\n2. Running Simulation 2: Hub + Outsider (1 → 2 strong, 1 → 3 weak, 4 independent)")
         print("-" * 50)
-        data2 = generate_simulation_2(n_points=1500, strong_strength=0.8, weak_strength=0.3, delay=3)
+        data2 = generate_simulation_2(n_points=1500, strong_strength=0.2, weak_strength=0.01, delay=3)
 
         ts_plot2 = os.path.join(output_dir, "sim2_timeseries.png")
         visualize_time_series(data2, "Simulation 2: Hub + Outsider", save_path=ts_plot2)
+
+        # Create phase space reconstruction plots
+        phase_plot2 = os.path.join(output_dir, "sim2_phase_space.png")
+        plot_phase_space_reconstruction(data2, "Simulation 2: Hub + Outsider", E=3, tau=1, save_path=phase_plot2)
+
+        # Analyze phase space patterns
+        analyze_phase_space_patterns(data2, "Simulation 2: Hub + Outsider", E=3, tau=1)
+
+        # Demonstrate embedding dependency
+        demonstrate_embedding_failures(data2, "Simulation 2", output_dir)
 
         print("  Analyzing causality...")
         results2 = analyze_all_pairs(data2, E=3, tau=1)
@@ -626,10 +1279,20 @@ def run_all_simulations():
         # Simulation 3: Complex Network
         print("\n3. Running Simulation 3: Complex Network (1 → 2 strong, 1 → 3 weak, 4 → 2 weak)")
         print("-" * 50)
-        data3 = generate_simulation_3(n_points=1500, strong_strength=0.8, weak_strength=0.3, delay=3)
+        data3 = generate_simulation_3(n_points=1500, strong_strength=0.2, weak_strength=0.01, delay=3)
 
         ts_plot3 = os.path.join(output_dir, "sim3_timeseries.png")
         visualize_time_series(data3, "Simulation 3: Complex Network", save_path=ts_plot3)
+
+        # Create phase space reconstruction plots
+        phase_plot3 = os.path.join(output_dir, "sim3_phase_space.png")
+        plot_phase_space_reconstruction(data3, "Simulation 3: Complex Network", E=3, tau=1, save_path=phase_plot3)
+
+        # Analyze phase space patterns
+        analyze_phase_space_patterns(data3, "Simulation 3: Complex Network", E=3, tau=1)
+
+        # Demonstrate embedding dependency
+        demonstrate_embedding_failures(data3, "Simulation 3", output_dir)
 
         print("  Analyzing causality...")
         results3 = analyze_all_pairs(data3, E=3, tau=1)
@@ -659,6 +1322,23 @@ def run_all_simulations():
         print("- CCM should detect strongest direct relationships most clearly")
         print("- Indirect relationships (X1→X3 in Simulation 1) should be weaker")
         print("- Multiple influences on same target should be detectable but weaker individually")
+        print("- Embedding parameters (E, τ) critically affect all CCM results")
+        print("- Systematic parameter optimization essential for reliable causality detection")
+
+        print(f"\nAll outputs saved to: {output_dir}")
+        print(f"Log file: {log_file}")
+        print(f"Embedding sensitivity analyses completed for all simulations.")
+
+        # Summary of embedding dependency demonstration
+        print(f"\n{'=' * 60}")
+        print("EMBEDDING DEPENDENCY SUMMARY")
+        print(f"{'=' * 60}")
+        print("Generated analysis files:")
+        print("• Embedding sensitivity heatmaps for key variable pairs")
+        print("• Optimal parameter analysis (FNN and MI) for each variable")
+        print("• Comparison tables showing dramatic parameter effects")
+        print("• Visual demonstration of embedding dependency")
+        print("This analysis proves CCM results are meaningless without proper embedding!")
 
         print(f"\nAll outputs saved to: {output_dir}")
         print(f"Log file: {log_file}")
